@@ -22,12 +22,15 @@ namespace MatrixCalculator
 
     public SquareMatrix(double[,] sourceArray)
     {
+      int ColumnDimension;
+      ColumnDimension = 1;
+
       if (sourceArray == null)
       {
         throw new MatrixNullException("Matrix cannot be null");
       }
 
-      if (sourceArray.GetLength(0) != sourceArray.GetLength(1))
+      if (sourceArray.GetLength(0) != sourceArray.GetLength(ColumnDimension))
       {
         throw new NonSquareMatrixException("Matrix must be square");
       }
@@ -35,9 +38,9 @@ namespace MatrixCalculator
       Size = sourceArray.GetLength(0);
       _matrixData = new double[Size, Size];
 
-      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      for (int rowIndex = 0; rowIndex < Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < Size; ++columnIndex)
         {
           _matrixData[rowIndex, columnIndex] = sourceArray[rowIndex, columnIndex];
         }
@@ -81,9 +84,9 @@ namespace MatrixCalculator
 
       SquareMatrix resultMatrix = new SquareMatrix(firstMatrix.Size);
 
-      for (int rowIndex = 0; rowIndex < firstMatrix.Size; rowIndex++)
+      for (int rowIndex = 0; rowIndex < firstMatrix.Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < firstMatrix.Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < firstMatrix.Size; ++columnIndex)
         {
           resultMatrix[rowIndex, columnIndex] = firstMatrix[rowIndex, columnIndex] + secondMatrix[rowIndex, columnIndex];
         }
@@ -94,6 +97,8 @@ namespace MatrixCalculator
 
     public static SquareMatrix operator *(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
+      double sumValue;
+
       if (firstMatrix == null || secondMatrix == null)
       {
         throw new MatrixNullException("Matrices cannot be null");
@@ -106,13 +111,13 @@ namespace MatrixCalculator
 
       SquareMatrix resultMatrix = new SquareMatrix(firstMatrix.Size);
 
-      for (int rowIndex = 0; rowIndex < firstMatrix.Size; rowIndex++)
+      for (int rowIndex = 0; rowIndex < firstMatrix.Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < firstMatrix.Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < firstMatrix.Size; ++columnIndex)
         {
-          double sumValue = 0;
+          sumValue = 0;
 
-          for (int innerIndex = 0; innerIndex < firstMatrix.Size; innerIndex++)
+          for (int innerIndex = 0; innerIndex < firstMatrix.Size; ++innerIndex)
           {
             sumValue += firstMatrix[rowIndex, innerIndex] * secondMatrix[innerIndex, columnIndex];
           }
@@ -186,16 +191,18 @@ namespace MatrixCalculator
 
     public static explicit operator double[,](SquareMatrix sourceMatrix)
     {
+      double[,] resultArray;
+
       if (sourceMatrix == null)
       {
         throw new MatrixNullException("Matrix cannot be null");
       }
 
-      double[,] resultArray = new double[sourceMatrix.Size, sourceMatrix.Size];
+      resultArray = new double[sourceMatrix.Size, sourceMatrix.Size];
 
-      for (int rowIndex = 0; rowIndex < sourceMatrix.Size; rowIndex++)
+      for (int rowIndex = 0; rowIndex < sourceMatrix.Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < sourceMatrix.Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < sourceMatrix.Size; ++columnIndex)
         {
           resultArray[rowIndex, columnIndex] = sourceMatrix[rowIndex, columnIndex];
         }
@@ -233,19 +240,31 @@ namespace MatrixCalculator
 
     public double CalculateDeterminant()
     {
-      if (Size == 1)
+      int pairMatrixSize;
+      int scalarMatrixSize;
+      int secondRow;
+      int secondColumn;
+
+      secondRow = 1;
+      pairMatrixSize = 2;
+      secondColumn = 1;
+      scalarMatrixSize = 1;
+
+
+      if (Size == scalarMatrixSize)
       {
         return _matrixData[0, 0];
       }
 
-      if (Size == 2)
+      if (Size == pairMatrixSize)
       {
-        return _matrixData[0, 0] * _matrixData[1, 1] - _matrixData[0, 1] * _matrixData[1, 0];
+        return _matrixData[0, 0] * _matrixData[secondRow, secondColumn] - _matrixData[0, secondColumn] * _matrixData[secondRow, 0];
       }
 
-      double determinantValue = 0;
+      double determinantValue;
+      determinantValue = 0;
 
-      for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+      for (int columnIndex = 0; columnIndex < Size; ++columnIndex)
       {
         determinantValue += _matrixData[0, columnIndex] * CalculateCofactor(0, columnIndex);
       }
@@ -255,17 +274,43 @@ namespace MatrixCalculator
 
     private double CalculateCofactor(int rowIndex, int columnIndex)
     {
-      double sign = ((rowIndex + columnIndex) % 2 == 0) ? 1.0 : -1.0;
+      double PositiveSign;
+      double NegativeSign;
+      int ParityCheckDivisor;
+      int indexSum;
+
+      PositiveSign = 1.0;
+      NegativeSign = -1.0;
+      ParityCheckDivisor = 2;
+
+      double sign;
+      indexSum = rowIndex + columnIndex;
+
+      if (indexSum % ParityCheckDivisor == 0)
+      {
+        sign = PositiveSign;
+      }
+      else
+      {
+        sign = NegativeSign;
+      }
+
       return CalculateMinor(rowIndex, columnIndex) * sign;
     }
 
     private double CalculateMinor(int excludedRow, int excludedColumn)
     {
-      SquareMatrix minorMatrix = new SquareMatrix(Size - 1);
-      int targetRow = 0;
-      int targetColumn = 0;
+      int minorSizeDecrement;
+      minorSizeDecrement = 1;
 
-      for (int sourceRow = 0; sourceRow < Size; sourceRow++)
+      SquareMatrix minorMatrix = new SquareMatrix(Size - minorSizeDecrement);
+      int targetRow;
+      int targetColumn;
+
+      targetColumn = 0;
+      targetRow = 0;
+
+      for (int sourceRow = 0; sourceRow < Size; ++sourceRow)
       {
         if (sourceRow == excludedRow)
         {
@@ -274,7 +319,7 @@ namespace MatrixCalculator
 
         targetColumn = 0;
 
-        for (int sourceColumn = 0; sourceColumn < Size; sourceColumn++)
+        for (int sourceColumn = 0; sourceColumn < Size; ++sourceColumn)
         {
           if (sourceColumn == excludedColumn)
           {
@@ -282,10 +327,10 @@ namespace MatrixCalculator
           }
 
           minorMatrix[targetRow, targetColumn] = _matrixData[sourceRow, sourceColumn];
-          targetColumn++;
+          ++targetColumn;
         }
 
-        targetRow++;
+        ++targetRow;
       }
 
       return minorMatrix.CalculateDeterminant();
@@ -293,8 +338,10 @@ namespace MatrixCalculator
 
     public SquareMatrix CalculateInverse()
     {
-      double determinantValue = CalculateDeterminant();
+      double determinantValue;
       const double epsilon = 1e-10;
+
+      determinantValue = CalculateDeterminant();
 
       if (Math.Abs(determinantValue) < epsilon)
       {
@@ -303,9 +350,9 @@ namespace MatrixCalculator
 
       SquareMatrix inverseMatrix = new SquareMatrix(Size);
 
-      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      for (int rowIndex = 0; rowIndex < Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < Size; ++columnIndex)
         {
           inverseMatrix[columnIndex, rowIndex] = CalculateCofactor(rowIndex, columnIndex) / determinantValue;
         }
@@ -317,14 +364,18 @@ namespace MatrixCalculator
     public override string ToString()
     {
       StringBuilder resultBuilder = new StringBuilder();
-      const string numberFormat = "F2";
-      const int paddingSize = 8;
+      string numberFormat;
+      int paddingSize;
+      string formattedNumber;
 
-      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      paddingSize = 8;
+      numberFormat = "F2";
+
+      for (int rowIndex = 0; rowIndex < Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < Size; ++columnIndex)
         {
-          string formattedNumber = _matrixData[rowIndex, columnIndex].ToString(numberFormat);
+          formattedNumber = _matrixData[rowIndex, columnIndex].ToString(numberFormat);
           resultBuilder.Append(formattedNumber.PadLeft(paddingSize));
         }
 
@@ -363,9 +414,9 @@ namespace MatrixCalculator
 
       const double epsilon = 1e-10;
 
-      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      for (int rowIndex = 0; rowIndex < Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < Size; ++columnIndex)
         {
           if (Math.Abs(_matrixData[rowIndex, columnIndex] - otherMatrix[rowIndex, columnIndex]) > epsilon)
           {
@@ -379,10 +430,14 @@ namespace MatrixCalculator
 
     public override int GetHashCode()
     {
-      const int initialHash = 17;
-      const int hashMultiplier = 31;
+      int initialHash;
+      int hashMultiplier;
 
-      int hashCode = initialHash;
+      initialHash = 17;
+      hashMultiplier = 31;
+
+      int hashCode;
+      hashCode = initialHash;
 
       foreach (double elementValue in _matrixData)
       {
@@ -396,9 +451,9 @@ namespace MatrixCalculator
     {
       SquareMatrix clonedMatrix = new SquareMatrix(Size);
 
-      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      for (int rowIndex = 0; rowIndex < Size; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+        for (int columnIndex = 0; columnIndex < Size; ++columnIndex)
         {
           clonedMatrix[rowIndex, columnIndex] = _matrixData[rowIndex, columnIndex];
         }
@@ -410,21 +465,28 @@ namespace MatrixCalculator
     public static SquareMatrix ReadFromConsole()
     {
       Console.Write("Enter matrix size: ");
-      string sizeInput = Console.ReadLine();
-      int matrixSize = int.Parse(sizeInput);
+      string sizeInput;
+      int matrixSize;
+      string rowInput;
+      double elementValue;
+      int DisplayOffset;
+
+      sizeInput = Console.ReadLine();
+      matrixSize = int.Parse(sizeInput);
+      DisplayOffset = 1;
 
       SquareMatrix resultMatrix = new SquareMatrix(matrixSize);
       Console.WriteLine("Enter matrix elements row by row (space separated):");
 
-      for (int rowIndex = 0; rowIndex < matrixSize; rowIndex++)
+      for (int rowIndex = 0; rowIndex < matrixSize; ++rowIndex)
       {
-        Console.Write($"Row {rowIndex + 1}: ");
-        string rowInput = Console.ReadLine();
+        Console.Write($"Row {rowIndex + DisplayOffset}: ");
+        rowInput = Console.ReadLine();
         string[] elementValues = rowInput.Split(' ');
 
-        for (int columnIndex = 0; columnIndex < matrixSize; columnIndex++)
+        for (int columnIndex = 0; columnIndex < matrixSize; ++columnIndex)
         {
-          double elementValue = double.Parse(elementValues[columnIndex]);
+          elementValue = double.Parse(elementValues[columnIndex]);
           resultMatrix[rowIndex, columnIndex] = elementValue;
         }
       }

@@ -4,7 +4,7 @@ namespace MatrixCalculator
 {
   public class Program
   {
-    public static void Main(string[] arguments)
+    public static void Main()
     {
       Console.WriteLine("MATRIX CALCULATOR");
       Console.WriteLine("=================");
@@ -15,7 +15,8 @@ namespace MatrixCalculator
         {
           DisplayMenu();
 
-          string userChoice = Console.ReadLine();
+          string userChoice;
+          userChoice = Console.ReadLine();
 
           if (userChoice == "7")
           {
@@ -129,8 +130,11 @@ namespace MatrixCalculator
       Console.WriteLine("\nMatrix B:");
       SquareMatrix secondMatrix = SquareMatrix.ReadFromConsole();
 
-      double firstDeterminant = firstMatrix.CalculateDeterminant();
-      double secondDeterminant = secondMatrix.CalculateDeterminant();
+      double firstDeterminant;
+      double secondDeterminant;
+
+      firstDeterminant = firstMatrix.CalculateDeterminant();
+      secondDeterminant = secondMatrix.CalculateDeterminant();
 
       Console.WriteLine($"\nDet(A) = {firstDeterminant:F2}");
       Console.WriteLine($"Det(B) = {secondDeterminant:F2}");
@@ -145,11 +149,12 @@ namespace MatrixCalculator
 
     private static void TestInvertibility()
     {
+      double determinantValue;
       Console.WriteLine("\n--- MATRIX INVERTIBILITY TEST ---");
 
       SquareMatrix testMatrix = SquareMatrix.ReadFromConsole();
 
-      double determinantValue = testMatrix.CalculateDeterminant();
+      determinantValue = testMatrix.CalculateDeterminant();
       Console.WriteLine($"\nDeterminant = {determinantValue:F2}");
 
       if (testMatrix)
@@ -171,7 +176,9 @@ namespace MatrixCalculator
       Console.WriteLine("\nOriginal matrix:");
       Console.WriteLine(originalMatrix.ToString());
 
-      double determinantValue = originalMatrix.CalculateDeterminant();
+      double determinantValue;
+      determinantValue = originalMatrix.CalculateDeterminant();
+
       Console.WriteLine($"Determinant = {determinantValue:F2}");
 
       SquareMatrix inverseMatrix = originalMatrix.CalculateInverse();
@@ -188,13 +195,30 @@ namespace MatrixCalculator
     {
       Console.WriteLine("\n--- OPERATOR TESTS ---");
 
-      const int testMatrixSize = 2;
+      int TestMatrixSize;
+      int SecondColumnIndex;
+      double FirstElementValue;
+      double SecondElementValue;
+      string NumberFormat;
+      string SpaceSeparator;
+      int ColumnDimension;
 
-      double[,] testArray = new double[testMatrixSize, testMatrixSize]
-      {
-        { 1.0, 2.0 },
-        { 3.0, 4.0 }
-      };
+      ColumnDimension = 1;
+      SpaceSeparator = " ";
+      NumberFormat = "F2";
+      SecondElementValue = 2.0;
+      FirstElementValue = 1.0;
+      SecondColumnIndex = 1;
+      TestMatrixSize = 2;
+
+      int testMatrixSize;
+      double[,] testArray;
+
+      testMatrixSize = TestMatrixSize;
+      testArray = new double[testMatrixSize, testMatrixSize];
+
+      testArray[0, 0] = FirstElementValue;
+      testArray[0, SecondColumnIndex] = SecondElementValue;
 
       SquareMatrix firstMatrix = new SquareMatrix(testArray);
       SquareMatrix secondMatrix = firstMatrix.CreateDeepCopy();
@@ -209,27 +233,32 @@ namespace MatrixCalculator
       Console.WriteLine($"A != B: {firstMatrix != secondMatrix}");
       Console.WriteLine($"A.Equals(B): {firstMatrix.Equals(secondMatrix)}");
 
-      int comparisonResult = firstMatrix.CompareTo(secondMatrix);
+      int comparisonResult;
+      comparisonResult = firstMatrix.CompareTo(secondMatrix);
       Console.WriteLine($"CompareTo result: {comparisonResult}");
 
       Console.WriteLine("\nHash codes:");
       Console.WriteLine($"A hash: {firstMatrix.GetHashCode()}");
       Console.WriteLine($"B hash: {secondMatrix.GetHashCode()}");
 
-      double[,] convertedArray = (double[,])firstMatrix;
+      double[,] convertedArray;
+
+      convertedArray = (double[,])firstMatrix;
 
       Console.WriteLine("\nExplicit cast to array:");
 
-      int rowCount = convertedArray.GetLength(0);
-      int columnCount = convertedArray.GetLength(1);
+      int rowCount;
+      int columnCount;
 
-      for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
+      columnCount = convertedArray.GetLength(ColumnDimension);
+      rowCount = convertedArray.GetLength(0);
+
+      for (int rowIndex = 0; rowIndex < rowCount; ++rowIndex)
       {
-        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
+        for (int columnIndex = 0; columnIndex < columnCount; ++columnIndex)
         {
-          Console.Write($"{convertedArray[rowIndex, columnIndex]:F2} ");
+          Console.Write(convertedArray[rowIndex, columnIndex].ToString(NumberFormat) + SpaceSeparator);
         }
-
         Console.WriteLine();
       }
     }

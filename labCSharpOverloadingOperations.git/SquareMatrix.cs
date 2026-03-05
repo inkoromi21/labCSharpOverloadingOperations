@@ -22,15 +22,15 @@ namespace MatrixCalculator
 
     public SquareMatrix(double[,] sourceArray)
     {
-      int ColumnDimension;
-      ColumnDimension = 1;
+      int columnDimension;
+      columnDimension = 1;
 
       if (sourceArray == null)
       {
         throw new MatrixNullException("Matrix cannot be null");
       }
 
-      if (sourceArray.GetLength(0) != sourceArray.GetLength(ColumnDimension))
+      if (sourceArray.GetLength(0) != sourceArray.GetLength(columnDimension))
       {
         throw new NonSquareMatrixException("Matrix must be square");
       }
@@ -274,25 +274,25 @@ namespace MatrixCalculator
 
     private double CalculateCofactor(int rowIndex, int columnIndex)
     {
-      double PositiveSign;
-      double NegativeSign;
-      int ParityCheckDivisor;
+      double positiveSign;
+      double negativeSign;
+      int parityCheckDivisor;
       int indexSum;
 
-      PositiveSign = 1.0;
-      NegativeSign = -1.0;
-      ParityCheckDivisor = 2;
+      positiveSign = 1.0;
+      negativeSign = -1.0;
+      parityCheckDivisor = 2;
 
       double sign;
       indexSum = rowIndex + columnIndex;
 
-      if (indexSum % ParityCheckDivisor == 0)
+      if (indexSum % parityCheckDivisor == 0)
       {
-        sign = PositiveSign;
+        sign = positiveSign;
       }
       else
       {
-        sign = NegativeSign;
+        sign = negativeSign;
       }
 
       return CalculateMinor(rowIndex, columnIndex) * sign;

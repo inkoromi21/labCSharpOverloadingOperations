@@ -2,9 +2,9 @@
 
 namespace MatrixCalculator
 {
-  class Program
+  public class Program
   {
-    static void Main(string[] args)
+    public static void Main(string[] arguments)
     {
       Console.WriteLine("MATRIX CALCULATOR");
       Console.WriteLine("=================");
@@ -13,118 +13,146 @@ namespace MatrixCalculator
       {
         try
         {
-          Console.WriteLine("\n1. Add matrices");
-          Console.WriteLine("2. Multiply matrices");
-          Console.WriteLine("3. Compare matrices (determinant)");
-          Console.WriteLine("4. Check matrix invertibility");
-          Console.WriteLine("5. Find inverse matrix");
-          Console.WriteLine("6. Test matrix operators");
-          Console.WriteLine("7. Exit");
-          Console.Write("Select option: ");
+          DisplayMenu();
 
-          string choice = Console.ReadLine();
+          string userChoice = Console.ReadLine();
 
-          switch (choice)
+          if (userChoice == "7")
           {
-            case "1":
-              TestAddition();
-              break;
-            case "2":
-              TestMultiplication();
-              break;
-            case "3":
-              TestComparison();
-              break;
-            case "4":
-              TestInvertibility();
-              break;
-            case "5":
-              TestInverse();
-              break;
-            case "6":
-              TestOperators();
-              break;
-            case "7":
-              return;
-            default:
-              Console.WriteLine("Invalid option");
-              break;
+            return;
           }
+
+          ProcessUserChoice(userChoice);
         }
-        catch (MatrixException ex)
+        catch (MatrixException matrixError)
         {
-          Console.WriteLine($"Matrix error: {ex.Message}");
+          Console.WriteLine($"Matrix error: {matrixError.Message}");
         }
         catch (FormatException)
         {
           Console.WriteLine("Invalid number format");
         }
-        catch (Exception ex)
+        catch (Exception generalError)
         {
-          Console.WriteLine($"Error: {ex.Message}");
+          Console.WriteLine($"Error: {generalError.Message}");
         }
+
+        Console.WriteLine();
       }
     }
 
-    static void TestAddition()
+    private static void DisplayMenu()
+    {
+      Console.WriteLine("1. Add matrices");
+      Console.WriteLine("2. Multiply matrices");
+      Console.WriteLine("3. Compare matrices (by determinant)");
+      Console.WriteLine("4. Check matrix invertibility");
+      Console.WriteLine("5. Find inverse matrix");
+      Console.WriteLine("6. Test matrix operators");
+      Console.WriteLine("7. Exit");
+      Console.Write("Select option: ");
+    }
+
+    private static void ProcessUserChoice(string choice)
+    {
+      switch (choice)
+      {
+        case "1":
+          TestAddition();
+          break;
+
+        case "2":
+          TestMultiplication();
+          break;
+
+        case "3":
+          TestComparison();
+          break;
+
+        case "4":
+          TestInvertibility();
+          break;
+
+        case "5":
+          TestInverse();
+          break;
+
+        case "6":
+          TestOperators();
+          break;
+
+        default:
+          Console.WriteLine("Invalid option");
+          break;
+      }
+    }
+
+    private static void TestAddition()
     {
       Console.WriteLine("\n--- MATRIX ADDITION ---");
+
       Console.WriteLine("Matrix A:");
-      SquareMatrix a = SquareMatrix.ReadFromConsole();
+      SquareMatrix firstMatrix = SquareMatrix.ReadFromConsole();
 
       Console.WriteLine("\nMatrix B:");
-      SquareMatrix b = SquareMatrix.ReadFromConsole();
+      SquareMatrix secondMatrix = SquareMatrix.ReadFromConsole();
 
-      SquareMatrix c = a + b;
+      SquareMatrix resultMatrix = firstMatrix + secondMatrix;
 
       Console.WriteLine("\nA + B =");
-      Console.WriteLine(c.ToString());
+      Console.WriteLine(resultMatrix.ToString());
     }
 
-    static void TestMultiplication()
+    private static void TestMultiplication()
     {
       Console.WriteLine("\n--- MATRIX MULTIPLICATION ---");
+
       Console.WriteLine("Matrix A:");
-      SquareMatrix a = SquareMatrix.ReadFromConsole();
+      SquareMatrix firstMatrix = SquareMatrix.ReadFromConsole();
 
       Console.WriteLine("\nMatrix B:");
-      SquareMatrix b = SquareMatrix.ReadFromConsole();
+      SquareMatrix secondMatrix = SquareMatrix.ReadFromConsole();
 
-      SquareMatrix c = a * b;
+      SquareMatrix resultMatrix = firstMatrix * secondMatrix;
 
       Console.WriteLine("\nA * B =");
-      Console.WriteLine(c.ToString());
+      Console.WriteLine(resultMatrix.ToString());
     }
 
-    static void TestComparison()
+    private static void TestComparison()
     {
       Console.WriteLine("\n--- MATRIX COMPARISON (by determinant) ---");
+
       Console.WriteLine("Matrix A:");
-      SquareMatrix a = SquareMatrix.ReadFromConsole();
+      SquareMatrix firstMatrix = SquareMatrix.ReadFromConsole();
 
       Console.WriteLine("\nMatrix B:");
-      SquareMatrix b = SquareMatrix.ReadFromConsole();
+      SquareMatrix secondMatrix = SquareMatrix.ReadFromConsole();
 
-      Console.WriteLine($"\nDet(A) = {a.Determinant():F2}");
-      Console.WriteLine($"Det(B) = {b.Determinant():F2}");
+      double firstDeterminant = firstMatrix.CalculateDeterminant();
+      double secondDeterminant = secondMatrix.CalculateDeterminant();
 
-      Console.WriteLine($"A > B: {a > b}");
-      Console.WriteLine($"A < B: {a < b}");
-      Console.WriteLine($"A >= B: {a >= b}");
-      Console.WriteLine($"A <= B: {a <= b}");
-      Console.WriteLine($"A == B: {a == b}");
-      Console.WriteLine($"A != B: {a != b}");
+      Console.WriteLine($"\nDet(A) = {firstDeterminant:F2}");
+      Console.WriteLine($"Det(B) = {secondDeterminant:F2}");
+
+      Console.WriteLine($"A > B: {firstMatrix > secondMatrix}");
+      Console.WriteLine($"A < B: {firstMatrix < secondMatrix}");
+      Console.WriteLine($"A >= B: {firstMatrix >= secondMatrix}");
+      Console.WriteLine($"A <= B: {firstMatrix <= secondMatrix}");
+      Console.WriteLine($"A == B: {firstMatrix == secondMatrix}");
+      Console.WriteLine($"A != B: {firstMatrix != secondMatrix}");
     }
 
-    static void TestInvertibility()
+    private static void TestInvertibility()
     {
       Console.WriteLine("\n--- MATRIX INVERTIBILITY TEST ---");
-      SquareMatrix a = SquareMatrix.ReadFromConsole();
 
-      double det = a.Determinant();
-      Console.WriteLine($"\nDeterminant = {det:F2}");
+      SquareMatrix testMatrix = SquareMatrix.ReadFromConsole();
 
-      if (a)
+      double determinantValue = testMatrix.CalculateDeterminant();
+      Console.WriteLine($"\nDeterminant = {determinantValue:F2}");
+
+      if (testMatrix)
       {
         Console.WriteLine("Matrix is invertible (true operator)");
       }
@@ -134,54 +162,74 @@ namespace MatrixCalculator
       }
     }
 
-    static void TestInverse()
+    private static void TestInverse()
     {
       Console.WriteLine("\n--- MATRIX INVERSE ---");
-      SquareMatrix a = SquareMatrix.ReadFromConsole();
+
+      SquareMatrix originalMatrix = SquareMatrix.ReadFromConsole();
 
       Console.WriteLine("\nOriginal matrix:");
-      Console.WriteLine(a.ToString());
+      Console.WriteLine(originalMatrix.ToString());
 
-      Console.WriteLine($"Determinant = {a.Determinant():F2}");
+      double determinantValue = originalMatrix.CalculateDeterminant();
+      Console.WriteLine($"Determinant = {determinantValue:F2}");
 
-      SquareMatrix inv = a.Inverse();
+      SquareMatrix inverseMatrix = originalMatrix.CalculateInverse();
+
       Console.WriteLine("\nInverse matrix:");
-      Console.WriteLine(inv.ToString());
+      Console.WriteLine(inverseMatrix.ToString());
 
-      SquareMatrix product = a * inv;
+      SquareMatrix productMatrix = originalMatrix * inverseMatrix;
       Console.WriteLine("A * A^(-1) =");
-      Console.WriteLine(product.ToString());
+      Console.WriteLine(productMatrix.ToString());
     }
 
-    static void TestOperators()
+    private static void TestOperators()
     {
       Console.WriteLine("\n--- OPERATOR TESTS ---");
-      SquareMatrix a = new SquareMatrix(2, true);
-      SquareMatrix b = a.Clone();
+
+      const int testMatrixSize = 2;
+
+      double[,] testArray = new double[testMatrixSize, testMatrixSize]
+      {
+        { 1.0, 2.0 },
+        { 3.0, 4.0 }
+      };
+
+      SquareMatrix firstMatrix = new SquareMatrix(testArray);
+      SquareMatrix secondMatrix = firstMatrix.CreateDeepCopy();
 
       Console.WriteLine("Original matrix A:");
-      Console.WriteLine(a.ToString());
+      Console.WriteLine(firstMatrix.ToString());
 
       Console.WriteLine("Clone matrix B (should be equal):");
-      Console.WriteLine(b.ToString());
+      Console.WriteLine(secondMatrix.ToString());
 
-      Console.WriteLine($"A == B: {a == b}");
-      Console.WriteLine($"A != B: {a != b}");
-      Console.WriteLine($"A.Equals(B): {a.Equals(b)}");
-      Console.WriteLine($"CompareTo result: {a.CompareTo(b)}");
+      Console.WriteLine($"A == B: {firstMatrix == secondMatrix}");
+      Console.WriteLine($"A != B: {firstMatrix != secondMatrix}");
+      Console.WriteLine($"A.Equals(B): {firstMatrix.Equals(secondMatrix)}");
+
+      int comparisonResult = firstMatrix.CompareTo(secondMatrix);
+      Console.WriteLine($"CompareTo result: {comparisonResult}");
 
       Console.WriteLine("\nHash codes:");
-      Console.WriteLine($"A hash: {a.GetHashCode()}");
-      Console.WriteLine($"B hash: {b.GetHashCode()}");
+      Console.WriteLine($"A hash: {firstMatrix.GetHashCode()}");
+      Console.WriteLine($"B hash: {secondMatrix.GetHashCode()}");
 
-      double[,] array = (double[,])a;
+      double[,] convertedArray = (double[,])firstMatrix;
+
       Console.WriteLine("\nExplicit cast to array:");
-      for (int i = 0; i < array.GetLength(0); i++)
+
+      int rowCount = convertedArray.GetLength(0);
+      int columnCount = convertedArray.GetLength(1);
+
+      for (int rowIndex = 0; rowIndex < rowCount; rowIndex++)
       {
-        for (int j = 0; j < array.GetLength(1); j++)
+        for (int columnIndex = 0; columnIndex < columnCount; columnIndex++)
         {
-          Console.Write($"{array[i, j]:F2} ");
+          Console.Write($"{convertedArray[rowIndex, columnIndex]:F2} ");
         }
+
         Console.WriteLine();
       }
     }

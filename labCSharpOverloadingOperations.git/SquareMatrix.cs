@@ -5,323 +5,431 @@ namespace MatrixCalculator
 {
   public class SquareMatrix : IComparable<SquareMatrix>, IEquatable<SquareMatrix>
   {
-    private double[,] data;
+    private double[,] _matrixData;
+
     public int Size { get; private set; }
 
-    public SquareMatrix(int size)
+    public SquareMatrix(int matrixSize)
     {
-      if (size <= 0)
+      if (matrixSize <= 0)
+      {
         throw new InvalidMatrixSizeException("Matrix size must be positive");
+      }
 
-      Size = size;
-      data = new double[size, size];
+      Size = matrixSize;
+      _matrixData = new double[matrixSize, matrixSize];
     }
 
-    public SquareMatrix(int size, bool random) : this(size)
+    public SquareMatrix(double[,] sourceArray)
     {
-      if (random)
+      if (sourceArray == null)
       {
-        Random rand = new Random();
-        for (int i = 0; i < size; i++)
-          for (int j = 0; j < size; j++)
-            data[i, j] = rand.Next(-10, 11);
+        throw new MatrixNullException("Matrix cannot be null");
+      }
+
+      if (sourceArray.GetLength(0) != sourceArray.GetLength(1))
+      {
+        throw new NonSquareMatrixException("Matrix must be square");
+      }
+
+      Size = sourceArray.GetLength(0);
+      _matrixData = new double[Size, Size];
+
+      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      {
+        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+        {
+          _matrixData[rowIndex, columnIndex] = sourceArray[rowIndex, columnIndex];
+        }
       }
     }
 
-    public SquareMatrix(double[,] matrix)
-    {
-      if (matrix == null)
-        throw new MatrixNullException("Matrix cannot be null");
-
-      if (matrix.GetLength(0) != matrix.GetLength(1))
-        throw new NonSquareMatrixException("Matrix must be square");
-
-      Size = matrix.GetLength(0);
-      data = new double[Size, Size];
-
-      for (int i = 0; i < Size; i++)
-        for (int j = 0; j < Size; j++)
-          data[i, j] = matrix[i, j];
-    }
-
-    public double this[int i, int j]
+    public double this[int rowIndex, int columnIndex]
     {
       get
       {
-        if (i < 0 || i >= Size || j < 0 || j >= Size)
+        if (rowIndex < 0 || rowIndex >= Size || columnIndex < 0 || columnIndex >= Size)
+        {
           throw new IndexOutOfRangeException("Index out of matrix bounds");
-        return data[i, j];
+        }
+
+        return _matrixData[rowIndex, columnIndex];
       }
+
       set
       {
-        if (i < 0 || i >= Size || j < 0 || j >= Size)
+        if (rowIndex < 0 || rowIndex >= Size || columnIndex < 0 || columnIndex >= Size)
+        {
           throw new IndexOutOfRangeException("Index out of matrix bounds");
-        data[i, j] = value;
+        }
+
+        _matrixData[rowIndex, columnIndex] = value;
       }
     }
 
-    public static SquareMatrix operator +(SquareMatrix a, SquareMatrix b)
+    public static SquareMatrix operator +(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
-      if (a == null || b == null)
-        throw new MatrixNullException("Matrices cannot be null");
-
-      if (a.Size != b.Size)
-        throw new MatrixDimensionMismatchException("Matrices must have same size for addition");
-
-      SquareMatrix result = new SquareMatrix(a.Size);
-      for (int i = 0; i < a.Size; i++)
-        for (int j = 0; j < a.Size; j++)
-          result[i, j] = a[i, j] + b[i, j];
-
-      return result;
-    }
-
-    public static SquareMatrix operator *(SquareMatrix a, SquareMatrix b)
-    {
-      if (a == null || b == null)
-        throw new MatrixNullException("Matrices cannot be null");
-
-      if (a.Size != b.Size)
-        throw new MatrixDimensionMismatchException("Matrices must have same size for multiplication");
-
-      SquareMatrix result = new SquareMatrix(a.Size);
-      for (int i = 0; i < a.Size; i++)
+      if (firstMatrix == null || secondMatrix == null)
       {
-        for (int j = 0; j < a.Size; j++)
+        throw new MatrixNullException("Matrices cannot be null");
+      }
+
+      if (firstMatrix.Size != secondMatrix.Size)
+      {
+        throw new MatrixDimensionMismatchException("Matrices must have same size for addition");
+      }
+
+      SquareMatrix resultMatrix = new SquareMatrix(firstMatrix.Size);
+
+      for (int rowIndex = 0; rowIndex < firstMatrix.Size; rowIndex++)
+      {
+        for (int columnIndex = 0; columnIndex < firstMatrix.Size; columnIndex++)
         {
-          double sum = 0;
-          for (int k = 0; k < a.Size; k++)
-            sum += a[i, k] * b[k, j];
-          result[i, j] = sum;
+          resultMatrix[rowIndex, columnIndex] = firstMatrix[rowIndex, columnIndex] + secondMatrix[rowIndex, columnIndex];
         }
       }
-      return result;
+
+      return resultMatrix;
     }
 
-    public static bool operator >(SquareMatrix a, SquareMatrix b)
+    public static SquareMatrix operator *(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
-      if (a == null || b == null)
+      if (firstMatrix == null || secondMatrix == null)
+      {
         throw new MatrixNullException("Matrices cannot be null");
+      }
 
-      return a.Determinant() > b.Determinant();
+      if (firstMatrix.Size != secondMatrix.Size)
+      {
+        throw new MatrixDimensionMismatchException("Matrices must have same size for multiplication");
+      }
+
+      SquareMatrix resultMatrix = new SquareMatrix(firstMatrix.Size);
+
+      for (int rowIndex = 0; rowIndex < firstMatrix.Size; rowIndex++)
+      {
+        for (int columnIndex = 0; columnIndex < firstMatrix.Size; columnIndex++)
+        {
+          double sumValue = 0;
+
+          for (int innerIndex = 0; innerIndex < firstMatrix.Size; innerIndex++)
+          {
+            sumValue += firstMatrix[rowIndex, innerIndex] * secondMatrix[innerIndex, columnIndex];
+          }
+
+          resultMatrix[rowIndex, columnIndex] = sumValue;
+        }
+      }
+
+      return resultMatrix;
     }
 
-    public static bool operator <(SquareMatrix a, SquareMatrix b)
+    public static bool operator >(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
-      if (a == null || b == null)
+      if (firstMatrix == null || secondMatrix == null)
+      {
         throw new MatrixNullException("Matrices cannot be null");
+      }
 
-      return a.Determinant() < b.Determinant();
+      return firstMatrix.CalculateDeterminant() > secondMatrix.CalculateDeterminant();
     }
 
-    public static bool operator >=(SquareMatrix a, SquareMatrix b)
+    public static bool operator <(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
-      if (a == null || b == null)
+      if (firstMatrix == null || secondMatrix == null)
+      {
         throw new MatrixNullException("Matrices cannot be null");
+      }
 
-      return a.Determinant() >= b.Determinant();
+      return firstMatrix.CalculateDeterminant() < secondMatrix.CalculateDeterminant();
     }
 
-    public static bool operator <=(SquareMatrix a, SquareMatrix b)
+    public static bool operator >=(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
-      if (a == null || b == null)
+      if (firstMatrix == null || secondMatrix == null)
+      {
         throw new MatrixNullException("Matrices cannot be null");
+      }
 
-      return a.Determinant() <= b.Determinant();
+      return firstMatrix.CalculateDeterminant() >= secondMatrix.CalculateDeterminant();
     }
 
-    public static bool operator ==(SquareMatrix a, SquareMatrix b)
+    public static bool operator <=(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
-      if (ReferenceEquals(a, null) && ReferenceEquals(b, null))
+      if (firstMatrix == null || secondMatrix == null)
+      {
+        throw new MatrixNullException("Matrices cannot be null");
+      }
+
+      return firstMatrix.CalculateDeterminant() <= secondMatrix.CalculateDeterminant();
+    }
+
+    public static bool operator ==(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
+    {
+      if (ReferenceEquals(firstMatrix, null) && ReferenceEquals(secondMatrix, null))
+      {
         return true;
-      if (ReferenceEquals(a, null) || ReferenceEquals(b, null))
+      }
+
+      if (ReferenceEquals(firstMatrix, null) || ReferenceEquals(secondMatrix, null))
+      {
         return false;
+      }
 
-      return a.Equals(b);
+      return firstMatrix.Equals(secondMatrix);
     }
 
-    public static bool operator !=(SquareMatrix a, SquareMatrix b)
+    public static bool operator !=(SquareMatrix firstMatrix, SquareMatrix secondMatrix)
     {
-      return !(a == b);
+      return !(firstMatrix == secondMatrix);
     }
 
-    public static explicit operator double[,](SquareMatrix m)
+    public static explicit operator double[,](SquareMatrix sourceMatrix)
     {
-      if (m == null)
+      if (sourceMatrix == null)
+      {
         throw new MatrixNullException("Matrix cannot be null");
+      }
 
-      double[,] result = new double[m.Size, m.Size];
-      for (int i = 0; i < m.Size; i++)
-        for (int j = 0; j < m.Size; j++)
-          result[i, j] = m[i, j];
+      double[,] resultArray = new double[sourceMatrix.Size, sourceMatrix.Size];
 
-      return result;
+      for (int rowIndex = 0; rowIndex < sourceMatrix.Size; rowIndex++)
+      {
+        for (int columnIndex = 0; columnIndex < sourceMatrix.Size; columnIndex++)
+        {
+          resultArray[rowIndex, columnIndex] = sourceMatrix[rowIndex, columnIndex];
+        }
+      }
+
+      return resultArray;
     }
 
-    public static implicit operator SquareMatrix(double[,] array)
+    public static implicit operator SquareMatrix(double[,] sourceArray)
     {
-      return new SquareMatrix(array);
+      return new SquareMatrix(sourceArray);
     }
 
-    public static bool operator true(SquareMatrix m)
+    public static bool operator true(SquareMatrix sourceMatrix)
     {
-      if (m == null)
+      if (sourceMatrix == null)
+      {
         return false;
-      return Math.Abs(m.Determinant()) > 1e-10;
+      }
+
+      const double epsilon = 1e-10;
+      return Math.Abs(sourceMatrix.CalculateDeterminant()) > epsilon;
     }
 
-    public static bool operator false(SquareMatrix m)
+    public static bool operator false(SquareMatrix sourceMatrix)
     {
-      if (m == null)
+      if (sourceMatrix == null)
+      {
         return true;
-      return Math.Abs(m.Determinant()) <= 1e-10;
+      }
+
+      const double epsilon = 1e-10;
+      return Math.Abs(sourceMatrix.CalculateDeterminant()) <= epsilon;
     }
 
-    public double Determinant()
+    public double CalculateDeterminant()
     {
       if (Size == 1)
-        return data[0, 0];
+      {
+        return _matrixData[0, 0];
+      }
 
       if (Size == 2)
-        return data[0, 0] * data[1, 1] - data[0, 1] * data[1, 0];
-
-      double det = 0;
-      for (int j = 0; j < Size; j++)
       {
-        det += data[0, j] * Cofactor(0, j);
+        return _matrixData[0, 0] * _matrixData[1, 1] - _matrixData[0, 1] * _matrixData[1, 0];
       }
-      return det;
-    }
 
-    private double Cofactor(int row, int col)
-    {
-      return Minor(row, col) * ((row + col) % 2 == 0 ? 1 : -1);
-    }
+      double determinantValue = 0;
 
-    private double Minor(int row, int col)
-    {
-      SquareMatrix minor = new SquareMatrix(Size - 1);
-      int r = 0, c = 0;
-
-      for (int i = 0; i < Size; i++)
+      for (int columnIndex = 0; columnIndex < Size; columnIndex++)
       {
-        if (i == row) continue;
-        c = 0;
-        for (int j = 0; j < Size; j++)
+        determinantValue += _matrixData[0, columnIndex] * CalculateCofactor(0, columnIndex);
+      }
+
+      return determinantValue;
+    }
+
+    private double CalculateCofactor(int rowIndex, int columnIndex)
+    {
+      double sign = ((rowIndex + columnIndex) % 2 == 0) ? 1.0 : -1.0;
+      return CalculateMinor(rowIndex, columnIndex) * sign;
+    }
+
+    private double CalculateMinor(int excludedRow, int excludedColumn)
+    {
+      SquareMatrix minorMatrix = new SquareMatrix(Size - 1);
+      int targetRow = 0;
+      int targetColumn = 0;
+
+      for (int sourceRow = 0; sourceRow < Size; sourceRow++)
+      {
+        if (sourceRow == excludedRow)
         {
-          if (j == col) continue;
-          minor[r, c] = data[i, j];
-          c++;
+          continue;
         }
-        r++;
+
+        targetColumn = 0;
+
+        for (int sourceColumn = 0; sourceColumn < Size; sourceColumn++)
+        {
+          if (sourceColumn == excludedColumn)
+          {
+            continue;
+          }
+
+          minorMatrix[targetRow, targetColumn] = _matrixData[sourceRow, sourceColumn];
+          targetColumn++;
+        }
+
+        targetRow++;
       }
 
-      return minor.Determinant();
+      return minorMatrix.CalculateDeterminant();
     }
 
-    public SquareMatrix Inverse()
+    public SquareMatrix CalculateInverse()
     {
-      double det = Determinant();
-      if (Math.Abs(det) < 1e-10)
+      double determinantValue = CalculateDeterminant();
+      const double epsilon = 1e-10;
+
+      if (Math.Abs(determinantValue) < epsilon)
+      {
         throw new SingularMatrixException("Matrix is singular, cannot find inverse");
+      }
 
-      SquareMatrix inverse = new SquareMatrix(Size);
+      SquareMatrix inverseMatrix = new SquareMatrix(Size);
 
-      for (int i = 0; i < Size; i++)
+      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
       {
-        for (int j = 0; j < Size; j++)
+        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
         {
-          inverse[j, i] = Cofactor(i, j) / det;
+          inverseMatrix[columnIndex, rowIndex] = CalculateCofactor(rowIndex, columnIndex) / determinantValue;
         }
       }
 
-      return inverse;
+      return inverseMatrix;
     }
 
     public override string ToString()
     {
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < Size; i++)
+      StringBuilder resultBuilder = new StringBuilder();
+      const string numberFormat = "F2";
+      const int paddingSize = 8;
+
+      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
       {
-        for (int j = 0; j < Size; j++)
+        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
         {
-          sb.Append(data[i, j].ToString("F2").PadLeft(8));
+          string formattedNumber = _matrixData[rowIndex, columnIndex].ToString(numberFormat);
+          resultBuilder.Append(formattedNumber.PadLeft(paddingSize));
         }
-        sb.AppendLine();
+
+        resultBuilder.AppendLine();
       }
-      return sb.ToString();
+
+      return resultBuilder.ToString();
     }
 
-    public int CompareTo(SquareMatrix other)
+    public int CompareTo(SquareMatrix otherMatrix)
     {
-      if (other == null)
+      if (otherMatrix == null)
+      {
         return 1;
+      }
 
-      return Determinant().CompareTo(other.Determinant());
+      return CalculateDeterminant().CompareTo(otherMatrix.CalculateDeterminant());
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object comparedObject)
     {
-      return Equals(obj as SquareMatrix);
+      return Equals(comparedObject as SquareMatrix);
     }
 
-    public bool Equals(SquareMatrix other)
+    public bool Equals(SquareMatrix otherMatrix)
     {
-      if (other == null)
-        return false;
-
-      if (Size != other.Size)
-        return false;
-
-      for (int i = 0; i < Size; i++)
+      if (otherMatrix == null)
       {
-        for (int j = 0; j < Size; j++)
+        return false;
+      }
+
+      if (Size != otherMatrix.Size)
+      {
+        return false;
+      }
+
+      const double epsilon = 1e-10;
+
+      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      {
+        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
         {
-          if (Math.Abs(data[i, j] - other[i, j]) > 1e-10)
+          if (Math.Abs(_matrixData[rowIndex, columnIndex] - otherMatrix[rowIndex, columnIndex]) > epsilon)
+          {
             return false;
+          }
         }
       }
+
       return true;
     }
 
     public override int GetHashCode()
     {
-      int hash = 17;
-      foreach (double val in data)
+      const int initialHash = 17;
+      const int hashMultiplier = 31;
+
+      int hashCode = initialHash;
+
+      foreach (double elementValue in _matrixData)
       {
-        hash = hash * 31 + val.GetHashCode();
+        hashCode = hashCode * hashMultiplier + elementValue.GetHashCode();
       }
-      return hash;
+
+      return hashCode;
     }
 
-    public SquareMatrix Clone()
+    public SquareMatrix CreateDeepCopy()
     {
-      SquareMatrix clone = new SquareMatrix(Size);
-      for (int i = 0; i < Size; i++)
-        for (int j = 0; j < Size; j++)
-          clone[i, j] = data[i, j];
-      return clone;
+      SquareMatrix clonedMatrix = new SquareMatrix(Size);
+
+      for (int rowIndex = 0; rowIndex < Size; rowIndex++)
+      {
+        for (int columnIndex = 0; columnIndex < Size; columnIndex++)
+        {
+          clonedMatrix[rowIndex, columnIndex] = _matrixData[rowIndex, columnIndex];
+        }
+      }
+
+      return clonedMatrix;
     }
 
     public static SquareMatrix ReadFromConsole()
     {
       Console.Write("Enter matrix size: ");
-      int size = int.Parse(Console.ReadLine());
+      string sizeInput = Console.ReadLine();
+      int matrixSize = int.Parse(sizeInput);
 
-      SquareMatrix matrix = new SquareMatrix(size);
+      SquareMatrix resultMatrix = new SquareMatrix(matrixSize);
       Console.WriteLine("Enter matrix elements row by row (space separated):");
 
-      for (int i = 0; i < size; i++)
+      for (int rowIndex = 0; rowIndex < matrixSize; rowIndex++)
       {
-        Console.Write($"Row {i + 1}: ");
-        string[] values = Console.ReadLine().Split(' ');
-        for (int j = 0; j < size; j++)
+        Console.Write($"Row {rowIndex + 1}: ");
+        string rowInput = Console.ReadLine();
+        string[] elementValues = rowInput.Split(' ');
+
+        for (int columnIndex = 0; columnIndex < matrixSize; columnIndex++)
         {
-          matrix[i, j] = double.Parse(values[j]);
+          double elementValue = double.Parse(elementValues[columnIndex]);
+          resultMatrix[rowIndex, columnIndex] = elementValue;
         }
       }
 
-      return matrix;
+      return resultMatrix;
     }
   }
 }

@@ -195,30 +195,28 @@ namespace MatrixCalculator
     {
       Console.WriteLine("\n--- OPERATOR TESTS ---");
 
-      int TestMatrixSize;
-      int SecondColumnIndex;
-      double FirstElementValue;
-      double SecondElementValue;
-      string NumberFormat;
-      string SpaceSeparator;
-      int ColumnDimension;
-
-      ColumnDimension = 1;
-      SpaceSeparator = " ";
-      NumberFormat = "F2";
-      SecondElementValue = 2.0;
-      FirstElementValue = 1.0;
-      SecondColumnIndex = 1;
-      TestMatrixSize = 2;
-
       int testMatrixSize;
+      int secondColumnIndex;
+      double firstElementValue;
+      double secondElementValue;
+      string numberFormat;
+      string spaceSeparator;
+      int columnDimension;
+
+      columnDimension = 1;
+      spaceSeparator = " ";
+      numberFormat = "F2";
+      secondElementValue = 2.0;
+      firstElementValue = 1.0;
+      secondColumnIndex = 1;
+      testMatrixSize = 2;
+
       double[,] testArray;
 
-      testMatrixSize = TestMatrixSize;
       testArray = new double[testMatrixSize, testMatrixSize];
 
-      testArray[0, 0] = FirstElementValue;
-      testArray[0, SecondColumnIndex] = SecondElementValue;
+      testArray[0, 0] = firstElementValue;
+      testArray[0, secondColumnIndex] = secondElementValue;
 
       SquareMatrix firstMatrix = new SquareMatrix(testArray);
       SquareMatrix secondMatrix = firstMatrix.CreateDeepCopy();
@@ -250,14 +248,14 @@ namespace MatrixCalculator
       int rowCount;
       int columnCount;
 
-      columnCount = convertedArray.GetLength(ColumnDimension);
+      columnCount = convertedArray.GetLength(columnDimension);
       rowCount = convertedArray.GetLength(0);
 
       for (int rowIndex = 0; rowIndex < rowCount; ++rowIndex)
       {
         for (int columnIndex = 0; columnIndex < columnCount; ++columnIndex)
         {
-          Console.Write(convertedArray[rowIndex, columnIndex].ToString(NumberFormat) + SpaceSeparator);
+          Console.Write(convertedArray[rowIndex, columnIndex].ToString(numberFormat) + spaceSeparator);
         }
         Console.WriteLine();
       }

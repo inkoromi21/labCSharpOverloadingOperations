@@ -469,20 +469,21 @@ namespace MatrixCalculator
       int matrixSize;
       string rowInput;
       double elementValue;
-      int DisplayOffset;
+      int displayOffset;
+      string[] elementValues;
 
       sizeInput = Console.ReadLine();
       matrixSize = int.Parse(sizeInput);
-      DisplayOffset = 1;
+      displayOffset = 1;
 
       SquareMatrix resultMatrix = new SquareMatrix(matrixSize);
       Console.WriteLine("Enter matrix elements row by row (space separated):");
 
       for (int rowIndex = 0; rowIndex < matrixSize; ++rowIndex)
       {
-        Console.Write($"Row {rowIndex + DisplayOffset}: ");
+        Console.Write($"Row {rowIndex + displayOffset}: ");
         rowInput = Console.ReadLine();
-        string[] elementValues = rowInput.Split(' ');
+        elementValues = rowInput.Split(' ');
 
         for (int columnIndex = 0; columnIndex < matrixSize; ++columnIndex)
         {
